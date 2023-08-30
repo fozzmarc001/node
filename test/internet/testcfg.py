@@ -1,5 +1,7 @@
-import sys, os
-sys.path.append(os.path.join(os.path.dirname(__file__), '..'))
+import os
+import sys
+from os.path import dirname, join
+sys.path.append(join(dirname(__file__), '..'))
 import testpy
 
 def GetConfiguration(context, root):
