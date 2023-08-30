@@ -218,24 +218,26 @@ TEST(async function test_lookup_all_ipv4(done) {
   checkWrap(req);
 });
 
+function validateLookupServiceResult(hostname, service) {
+  assert.strictEqual(typeof hostname, 'string');
+  assert(hostname);
+  assert(['http', 'www', '80'].includes(service));
+}
+
 TEST(async function test_lookupservice_ip_ipv4(done) {
-  function validateResult(res) {
-    assert.strictEqual(typeof res.hostname, 'string');
-    assert(res.hostname);
-    assert(['http', 'www', '80'].includes(res.service));
+  async function validateAndFinish(hostname, service) {
+    validateLookupServiceResult(hostname, service);
+    done();
   }
 
-  validateResult(await dnsPromises.lookupService('127.0.0.1', 80));
+  const lookupServicePromise = dnsPromises.lookupService('127.0.0.1', 80);
+  const [hostname, service] = await lookupServicePromise;
 
-  const req = dns.lookupService(
-    '127.0.0.1', 80,
-    common.mustSucceed((hostname, service) => {
-      validateResult({ hostname, service });
-      done();
-    }),
-  );
+  validateLookupServiceResult(hostname, service);
 
-  checkWrap(req);
+  await dns.lookupService('127.0.0.1', 80, common.mustSucceed((hostname, service) => {
+    validateAndFinish(hostname, service);
+  }));
 });
 
 TEST(function test_lookupservice_ip_ipv4_promise(done) {
